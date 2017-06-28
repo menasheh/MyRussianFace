@@ -8,11 +8,10 @@ const {
     //TELEBOT_PORT: PORT,
 } = process.env;
 
-const TRANSLATE_TO = 'ru';
-const TRANSLATE_ICONS = {
-    ru: '🇷🇺', lv: '🇱🇻', ua: '🇺🇦', uz: '🇺🇿', fr: '🇫🇷',
-    es: '🇪🇸', it: '🇮🇹', nl: '🇳🇱'
-};
+const USER_ID = process.env.USER_ID;
+const GROUP_ID = process.env.GROUP_ID;
+const LANG_NATIVE = 'en';
+const LANG_FOREIGN = 'ru';
 
 const bot = new TeleBot({
     token: TOKEN,
@@ -29,23 +28,54 @@ bot.on('text', (msg) => {
 
     console.log('+', chatId, messageId, text);
 
-    return translate(text, {to: TRANSLATE_TO}).then((response) => {
+    if(msg.chat.id === USER_ID){
+
+        console.log("Received message from user...");
+
+    return translate(text, {to: LANG_FOREIGN}).then((response) => {
 
         const translatedText = response.text;
         const languageId = response.from.language.iso;
+        let replyText = text;
 
-        if (languageId !== TRANSLATE_TO) {
-
-            const languageIcon = TRANSLATE_ICONS[languageId] || '';
-
-            return bot.sendMessage(chatId, `${languageIcon} ${translatedText}`, {
-                reply: messageId,
-                preview: false
-            });
-            
+        if (languageId !== LANG_FOREIGN) {
+            replyText = translatedText;
         }
 
+        return bot.sendMessage(GROUP_ID, `${replyText}`, {
+            preview: false
+        });
+
     });
+
+    } else if(msg.chat.id === GROUP_ID){
+
+        console.log("Received message from group...");
+        console.log(msg);
+
+        return translate(text, {to: LANG_NATIVE}).then((response) => {
+
+            const translatedText = response.text;
+            const languageId = response.from.language.iso;
+            let replyText = text;
+
+            if (languageId !== LANG_NATIVE) {
+                replyText = translatedText;
+            }
+
+            return bot.sendMessage(USER_ID, `${msg.from.first_name} \@${msg.from.username}:\n${replyText}`, {
+                preview: false
+            });
+
+        });
+
+    } else {
+        console.log("Unkown party has accessed the bot!.");
+        console.log(msg);
+        return bot.sendMessage(chatId, "We're sorry, this bot does not want to talk to you.  Stay tuned for info on how to make your own!", {
+            preview: false
+        });
+    }
 
 });
 
