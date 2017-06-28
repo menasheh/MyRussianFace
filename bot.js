@@ -70,8 +70,9 @@ bot.on('text', (msg) => {
         });
 
     } else {
-        console.log("Unkown party has accessed the bot!.");
+        console.log("Unknown party has accessed the bot!.");
         console.log(msg);
+        //TODO - respond in user's language
         return bot.sendMessage(chatId, "We're sorry, this bot does not want to talk to you.  Stay tuned for info on how to make your own!", {
             preview: false
         });
