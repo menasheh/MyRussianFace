@@ -1,5 +1,5 @@
 {
-  "name": "telebot-bot",
+  "name": "telegram-translations-bot",
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js"

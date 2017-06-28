@@ -3,12 +3,12 @@ const translate = require('google-translate-api');
 
 const {
     TELEBOT_TOKEN: TOKEN,
-    TELEBOT_URL: URL,
-    TELEBOT_HOST: HOST,
-    TELEBOT_PORT: PORT,
+    //TELEBOT_URL: URL,
+    //TELEBOT_HOST: HOST,
+    //TELEBOT_PORT: PORT,
 } = process.env;
 
-const TRANSLATE_TO = 'en';
+const TRANSLATE_TO = 'ru';
 const TRANSLATE_ICONS = {
     ru: '🇷🇺', lv: '🇱🇻', ua: '🇺🇦', uz: '🇺🇿', fr: '🇫🇷',
     es: '🇪🇸', it: '🇮🇹', nl: '🇳🇱'
@@ -16,9 +16,9 @@ const TRANSLATE_ICONS = {
 
 const bot = new TeleBot({
     token: TOKEN,
-    url: URL,
-    host: HOST,
-    port: PORT
+    //url: URL,
+    //host: HOST,
+    //port: PORT
 });
 
 bot.on('text', (msg) => {
@@ -49,4 +49,5 @@ bot.on('text', (msg) => {
 
 });
 
+bot.updateId = -1;
 bot.start();
