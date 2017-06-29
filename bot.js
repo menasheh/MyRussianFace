@@ -8,8 +8,8 @@ const {
     //TELEBOT_PORT: PORT,
 } = process.env;
 
-const USER_ID = process.env.USER_ID;
-const GROUP_ID = process.env.GROUP_ID;
+const USER_ID = Number(process.env.USER_ID);
+const GROUP_ID = Number(process.env.GROUP_ID);
 const LANG_NATIVE = 'en';
 const LANG_FOREIGN = 'ru';
 
@@ -30,8 +30,6 @@ bot.on('text', (msg) => {
 
     if(msg.chat.id === USER_ID){
 
-        console.log("Received message from user...");
-
     return translate(text, {to: LANG_FOREIGN}).then((response) => {
 
         const translatedText = response.text;
@@ -50,9 +48,6 @@ bot.on('text', (msg) => {
 
     } else if(msg.chat.id === GROUP_ID){
 
-        console.log("Received message from group...");
-        console.log(msg);
-
         return translate(text, {to: LANG_NATIVE}).then((response) => {
 
             const translatedText = response.text;
@@ -63,7 +58,8 @@ bot.on('text', (msg) => {
                 replyText = translatedText;
             }
 
-            return bot.sendMessage(USER_ID, `${msg.from.first_name} \@${msg.from.username}:\n${replyText}`, {
+            return bot.sendMessage(USER_ID, `<b>${msg.from.first_name}${msg.from.last_name ? ' ' + msg.from.last_name : ''}</b>(\@${msg.from.username})<b>:</b>\n${replyText}`, {
+                parse: "html",
                 preview: false
             });
 
@@ -71,14 +67,16 @@ bot.on('text', (msg) => {
 
     } else {
         console.log("Unknown party has accessed the bot!.");
-        console.log(msg);
-        //TODO - respond in user's language
-        return bot.sendMessage(chatId, "We're sorry, this bot does not want to talk to you.  Stay tuned for info on how to make your own!", {
-            preview: false
-        });
+        console.log(msg.chat.id);
+        //TODO - respond in user's own language
+        if(msg.chat.id === msg.from.id) { // Don't respond to public chats
+            return bot.sendMessage(chatId, "I'm sorry, this bot does not know how to talk to you.  Stay tuned for info on" +
+                " how to make your own!", {
+                preview: false
+            });
+        }
     }
 
 });
 
-bot.updateId = -1;
 bot.start();
