@@ -52,8 +52,8 @@ node bot.js
 
 ## Deployment
 
-If your computer is not always on, you may want to set this up on a Raspberry Pi or a [digital ocean](https://peromsik.com/go/digitalocean) droplet.
-Then, configure your computer to run `node bot.js` at startup. This AskUbuntu [answer](https://askubuntu.com/a/816/515251)may prove useful.
+If your computer is not always on, you may want to set this up on a Raspberry Pi or a [digitalocean](https://peromsik.com/go/digitalocean) droplet.
+Then, configure your computer to run `node bot.js` at startup. This AskUbuntu [answer](https://askubuntu.com/a/816/515251) may prove useful.
 
 ## Contributing
 
