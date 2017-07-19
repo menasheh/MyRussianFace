@@ -39,7 +39,7 @@ npm install
 ```
 
 Set environment variables `TELEBOT_TOKEN`, `USER_ID` and `GROUP_ID`. `TELEBOT_TOKEN` should be the bot token you got from
-[@botfather](https://t.me/botfather). USER_ID` should be your telegram id, and `GROUP_ID` should be the 
+[@botfather](https://t.me/botfather). `USER_ID` should be your telegram id, and `GROUP_ID` should be the 
 id of the foreign telegram group you'll be participating in.
 
 If you're not going from English to Russian, you may want to change these two lines in `bot.js` as appropriate:
