@@ -12,12 +12,16 @@ These instructions will get you up and running on your local machine. See deploy
 To run this bot, you need nodejs and npm. If you're on linux:
 
 ```
-sudo apt-get install -y nodejs npm
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
+source ~/.bashrc
+nvm install v6.11.1
 ```
 
 If you're on Windows, God help you. You can use the [Windows Subsystem for Linux (WSL)](https://msdn.microsoft.com/en-us/commandline/wsl/install_guide) or get nodeJS and npm [here](https://nodejs.org/en/).
 
-You also need a bot token from [@botfather](https://t.me/botfather), and a Telegram group which doesn't always speak your language.
+In any case, you also need a Telegram group which doesn't always speak your language, and a bot token from [@botfather](https://t.me/botfather).
+In addition to the bot token, you'll need to disable inline privacy for your bot _before_ you add it to the group so that
+it can read all messages in order to translate them.
 
 ### Installing
 
@@ -34,7 +38,8 @@ cd MyRussianFace
 npm install
 ```
 
-Set environment variables `USER_ID` and `GROUP_ID`. `USER_ID` should be your telegram id, and `GROUP_ID` should be the 
+Set environment variables `TELEBOT_TOKEN`, `USER_ID` and `GROUP_ID`. `TELEBOT_TOKEN` should be the bot token you got from
+[@botfather](https://t.me/botfather). `USER_ID` should be your telegram id, and `GROUP_ID` should be the 
 id of the foreign telegram group you'll be participating in.
 
 If you're not going from English to Russian, you may want to change these two lines in `bot.js` as appropriate:
