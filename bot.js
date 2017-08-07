@@ -37,7 +37,7 @@ bot.on('text', (msg) => {
         let replyText = text;
 
         if (languageId !== LANG_FOREIGN) {
-            replyText = translatedText;
+            replyText = text + "\n---\n" + translatedText;
         }
 
         return bot.sendMessage(GROUP_ID, `${replyText}`, {
@@ -55,7 +55,7 @@ bot.on('text', (msg) => {
             let replyText = text;
 
             if (languageId !== LANG_NATIVE) {
-                replyText = translatedText;
+                replyText = text + "\n---\n" + translatedText;
             }
 
             return bot.sendMessage(USER_ID, `<b>${msg.from.first_name}${msg.from.last_name ? ' ' + msg.from.last_name : ''}</b>(\@${msg.from.username})<b>:</b>\n${replyText}`, {
