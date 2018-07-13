@@ -49,7 +49,7 @@ bot.on('text', (msg) => {
             replyText = text + "\n---\n" + translatedText;
         }
 
-        if (msg.chat.id === GROUP_ID){
+        if (msg.chat.id === GROUP_ID) {
             let name = msg.from.first_name + (msg.from.last_name ? (' ' + msg.from.last_name) : '');
             replyText = `[${name}](tg://user?id=${msg.from.id}):\n${replyText}`;
         }
