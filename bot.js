@@ -43,8 +43,7 @@ async function getResponseConfig(msg) {
             translate(reply, {to: msg.from.language_code.slice(0, 2)}).then((response) => {
                 bot.sendMessage(msg.chat.id, response.text);
             }).catch((e) => {
-                console.log("translationFailure")
-                console.log(e);
+                logError(e, "translation");
                 bot.sendMessage(msg.chat.id, reply)
             });
         }
@@ -98,24 +97,23 @@ bot.on('forward', async (msg) => {
                     bot.sendMessage(dest.chat, response.text).then((msg3 => {
                         client.hset([msg.chat.id, msg.message_id, msg3.message_id]);
                         client.hset([msg3.chat.id, msg3.message_id, msg.message_id]);
-                    })).catch((e) => {
-                        console.log("failed to forward message translation");
-                        console.log(e)
-                    });
+                    })).catch((e) => logError(e, "sending fowarded message translation"));
                 } else {
                     client.hset([msg.chat.id, msg.message_id, msg2.message_id]);
                 }
             });
         });
-    }).catch((e) => {
-        console.log("name forward failed");
-        console.log(e)
-    });
+    }).catch((e) => logError(e, "name forward"));
 });
 
 bot.on('sticker', async (msg) => {
     let dest = await getResponseConfig(msg);
     bot.forwardMessage(dest.chat, msg.chat.id, msg.message_id);
 });
+
+function logError(e, note){
+    console.log(`${note} failed:`);
+    console.log(e)
+}
 
 bot.start();
