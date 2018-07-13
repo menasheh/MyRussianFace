@@ -63,7 +63,7 @@ bot.on('text', async (msg) => {
     return translate(text, {to: dest.lang}).then((response) => {
         let replyText = text;
         if (response.from.language.iso !== dest.lang) {
-            replyText = text + "\n---\n" + response.text;
+            replyText = response.text + "\n---\n" + text;
         }
 
         if (msg.chat.id === GROUP_ID) {
