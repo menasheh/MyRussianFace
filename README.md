@@ -1,11 +1,7 @@
 # My Russian Face - a Telegram Bot
 
-This is a Telegram bot which allows you to participate in conversations in languages foreign to you without spamming the
-group with extra messages every time. Sound exciting? Let's get started!
-
-## Getting Started
-
-These instructions will get you up and running on your local machine. See deployment for notes on how to deploy the project on a live system.
+This is a Telegram bot which allows you to participate in conversations in languages foreign to you without copying and 
+pasting and without spamming the group with extra notifications.
 
 ### Prerequisites
 
@@ -14,7 +10,7 @@ To run this bot, you need nodejs and npm. If you're on linux:
 ```
 curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
 source ~/.bashrc
-nvm install v6.11.1
+nvm install v8.9.4
 ```
 
 If you're on Windows, God help you. You can use the [Windows Subsystem for Linux (WSL)](https://msdn.microsoft.com/en-us/commandline/wsl/install_guide) or get nodeJS and npm [here](https://nodejs.org/en/).
@@ -27,24 +23,30 @@ it can read all messages in order to translate them.
 
 Clone this repository, or better, your fork:
 
-```
-git clone git@github.com:menasheh/MyRussianFace.git
+```bash
+git clone git@github.com:menasheh/myrussianface.git
 ```
 
-Install node dependencies
+##### Install dependencies
 
-```
-cd MyRussianFace
+```bash
+cd myrussianface
 npm install
 ```
 
-Set environment variables `TELEBOT_TOKEN`, `USER_ID` and `GROUP_ID`. `TELEBOT_TOKEN` should be the bot token you got from
-[@botfather](https://t.me/botfather). `USER_ID` should be your telegram id, and `GROUP_ID` should be the 
-id of the foreign telegram group you'll be participating in.
+##### Set environment variables
+ 
+- `TELEBOT_TOKEN` - from [@botfather](https://t.me/botfather),
+- `USER_ID` your telegram id,
+- `GROUP_ID` the id of a foreign-language user or group you'd like to communicate with.
+ 
+You can get these the first time by running the bot, sending it messages from each side, and checking the logs for the ids.
 
-If you're not going from English to Russian, you may want to change these two lines in `bot.js` as appropriate:
+##### Language Settings
+ 
+If you're not going from English to Russian, change the LANG constants in `bot.js`:
 
-```
+```javascript
 const LANG_NATIVE = 'en';
 const LANG_FOREIGN = 'ru';
 ```
@@ -57,8 +59,9 @@ node bot.js
 
 ## Deployment
 
-If your computer is not always on, you may want to set this up on a Raspberry Pi or a [digitalocean](https://peromsik.com/go/digitalocean) droplet.
-Then, configure your computer to run `node bot.js` at startup. This AskUbuntu [answer](https://askubuntu.com/a/816/515251) may prove useful.
+You can run it as needed from your computer, but a better solution is to set it up on a Raspberry Pi or 
+[digitalocean](https://peromsik.com/go/digitalocean) droplet. If you're trying to configure it to run at startup,
+[this AskUbuntu answer](https://askubuntu.com/a/816/515251) may prove useful.
 
 ## Contributing
 
@@ -70,13 +73,8 @@ Here's a few ideas to get you started:
  - add slash command to translate without sending the message
  - deal with multiple groups or switching between groups
  - allow more than one user to use the same bot instance without giving eachother message access to the wrong messages (this is infinitely more useful if one bot can handle multiple groups for one user without getting too cluttered)
+ - skip sending username when the most recent message in that chat had the username anyway
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-Powered by @mullwar's [Telebot](https://github.com/mullwar/telebot).
-
-Inspired by the translation bot made for Telebot's support chat.
