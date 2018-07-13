@@ -3,9 +3,6 @@ const translate = require('google-translate-api');
 
 const {
     TELEBOT_TOKEN: TOKEN,
-    //TELEBOT_URL: URL,
-    //TELEBOT_HOST: HOST,
-    //TELEBOT_PORT: PORT,
 } = process.env;
 
 const USER_ID = Number(process.env.USER_ID);
@@ -15,67 +12,56 @@ const LANG_FOREIGN = 'ru';
 
 const bot = new TeleBot({
     token: TOKEN,
-    //url: URL,
-    //host: HOST,
-    //port: PORT
 });
 
 bot.on('text', (msg) => {
+    let text = msg.text;
+    let chatId = msg.chat.id;
+    let messageId = msg.message_id;
 
-    const text = msg.text;
-    const chatId = msg.chat.id;
-    const messageId = msg.message_id;
 
-    console.log('+', chatId, messageId, text);
-
-    if(msg.chat.id === USER_ID){
-
-    return translate(text, {to: LANG_FOREIGN}).then((response) => {
-
-        const translatedText = response.text;
-        const languageId = response.from.language.iso;
-        let replyText = text;
-
-        if (languageId !== LANG_FOREIGN) {
-            replyText = text + "\n---\n" + translatedText;
-        }
-
-        return bot.sendMessage(GROUP_ID, `${replyText}`, {
-            preview: false
-        });
-
-    });
-
-    } else if(msg.chat.id === GROUP_ID){
-
-        return translate(text, {to: LANG_NATIVE}).then((response) => {
-
-            const translatedText = response.text;
-            const languageId = response.from.language.iso;
-            let replyText = text;
-
-            if (languageId !== LANG_NATIVE) {
-                replyText = text + "\n---\n" + translatedText;
-            }
-
-            return bot.sendMessage(USER_ID, `<b>${msg.from.first_name}${msg.from.last_name ? ' ' + msg.from.last_name : ''}</b>(\@${msg.from.username})<b>:</b>\n${replyText}`, {
-                parse: "html",
-                preview: false
-            });
-
-        });
-
+    let destChat;
+    let destLang;
+    if (msg.chat.id === USER_ID) {
+        destChat = GROUP_ID;
+        destLang = LANG_FOREIGN;
+    } else if (msg.chat.id === GROUP_ID) {
+        destChat = USER_ID;
+        destLang = LANG_NATIVE
     } else {
         console.log("Unknown party has accessed the bot!.");
         console.log(msg.chat.id);
         //TODO - respond in user's own language
-        if(msg.chat.id === msg.from.id) { // Don't respond to public chats
-            return bot.sendMessage(chatId, "I'm sorry, this bot does not know how to talk to you.  Stay tuned for info on" +
-                " how to make your own!", {
+        if (msg.chat.id === msg.from.id) { // Don't respond to public chats
+            return bot.sendMessage(chatId, "I'm a translation bot for @menasheh. He's planning to make one that more" +
+                "people can use, but hasn't yet. In the meantime, you can host your own copy. See " +
+                "https://github.com/menasheh/myrussianface", {
                 preview: false
             });
         }
+        return
     }
+
+    return translate(text, {to: destLang}).then((response) => {
+        let translatedText = response.text;
+        let languageId = response.from.language.iso;
+        let replyText = text;
+        if (languageId !== destLang) {
+            replyText = text + "\n---\n" + translatedText;
+        }
+
+        if (msg.chat.id === GROUP_ID){
+            replyText = `<b>${msg.from.first_name}${msg.from.last_name ? ' ' + msg.from.last_name :
+                ''}</b>(\@${msg.from.username})<b>:</b>\n${replyText}`
+        }
+
+        return bot.sendMessage(destChat, replyText, {
+            parse: "html",
+            preview: false
+        });
+    });
+
+
 
 });
 
