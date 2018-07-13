@@ -41,12 +41,10 @@ function getResponseConfig(msg) {
     }
 }
 
-bot.on('text', (msg) => {
-    let text = msg.text;
-    let chatId = msg.chat.id;
-    let messageId = msg.message_id;
 
+bot.on('text', (msg) => {
     let dest = getResponseConfig(msg);
+    let text = msg.text;
 
     return translate(text, {to: dest.lang}).then((response) => {
         let replyText = text;
