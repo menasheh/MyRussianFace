@@ -1,21 +1,19 @@
-const TeleBot = require('telebot');
-const translate = require('google-translate-api');
-const redis = require("redis"),
-    client = redis.createClient();
-const {promisify} = require('util');
-const hget = promisify(client.hget).bind(client);
-const {
-    TELEBOT_TOKEN: TOKEN,
-} = process.env;
-
-const USER_ID = Number(process.env.USER_ID);
-const GROUP_ID = Number(process.env.GROUP_ID);
-const LANG_NATIVE = 'en';
-const LANG_FOREIGN = 'ru';
-
-const bot = new TeleBot({
-    token: TOKEN,
-});
+const telebot = require('telebot'),
+    translate = require('google-translate-api'),
+    redis = require("redis"),
+    client = redis.createClient(),
+    {promisify} = require('util'),
+    hget = promisify(client.hget).bind(client),
+    {
+        TELEBOT_TOKEN: TOKEN,
+    } = process.env,
+    USER_ID = Number(process.env.USER_ID),
+    GROUP_ID = Number(process.env.GROUP_ID),
+    LANG_NATIVE = 'en',
+    LANG_FOREIGN = 'ru',
+    bot = new telebot({
+        token: TOKEN,
+    });
 
 function getSenderLink(msg) {
     let name = msg.from.first_name + (msg.from.last_name ? (' ' + msg.from.last_name) : '');
