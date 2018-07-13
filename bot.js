@@ -32,7 +32,7 @@ function getResponseConfig(msg) {
         console.log(msg.chat.id);
         //TODO - respond in user's own language msg.from.language_code (but not in right format)
         if (msg.chat.id === msg.from.id) { // Don't respond to public chats
-            bot.sendMessage(chatId, "I'm a translation bot for @menasheh. He's planning to make one that more" +
+            bot.sendMessage(msg.chat.id, "I'm a translation bot for @menasheh. He's planning to make one that more" +
                 "people can use, but hasn't yet. In the meantime, you can host your own copy. See " +
                 "https://github.com/menasheh/myrussianface", {
                 preview: false
