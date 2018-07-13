@@ -1,5 +1,9 @@
 const TeleBot = require('telebot');
 const translate = require('google-translate-api');
+const redis = require("redis"),
+    client = redis.createClient();
+const {promisify} = require('util');
+const hget = promisify(client.hget).bind(client);
 const {
     TELEBOT_TOKEN: TOKEN,
 } = process.env;
@@ -18,9 +22,10 @@ function getSenderLink(msg) {
     return `[${name}](tg://user?id=${msg.from.id})`;
 }
 
-function getResponseConfig(msg) {
+async function getResponseConfig(msg) {
     let destChat;
     let destLang;
+    let destReply = -1;
     if (msg.chat.id === USER_ID) {
         destChat = GROUP_ID;
         destLang = LANG_FOREIGN;
@@ -28,9 +33,9 @@ function getResponseConfig(msg) {
         destChat = USER_ID;
         destLang = LANG_NATIVE
     } else {
-        console.log("Unknown party has accessed the bot!.");
-        console.log(msg.chat.id);
-        //TODO - respond in user's own language msg.from.language_code (but not in right format)
+        console.log(`Unknown party ${msg.chat.id} has accessed the bot!.`);
+        console.log(msg.from.language_code);
+        //TODO - respond in user's own language
         if (msg.chat.id === msg.from.id) { // Don't respond to public chats
             bot.sendMessage(msg.chat.id, "I'm a translation bot for @menasheh. He's planning to make one that more" +
                 "people can use, but hasn't yet. In the meantime, you can host your own copy. See " +
@@ -40,15 +45,19 @@ function getResponseConfig(msg) {
         }
         return -1;
     }
+    if (msg.reply_to_message) {
+        destReply = await hget(msg.reply_to_message.chat.id, msg.reply_to_message.message_id);
+    }
     return {
         chat: destChat,
-        lang: destLang
+        lang: destLang,
+        reply: destReply
     }
 }
 
 
-bot.on('text', (msg) => {
-    let dest = getResponseConfig(msg);
+bot.on('text', async (msg) => {
+    let dest = await getResponseConfig(msg);
     let text = msg.text;
 
     return translate(text, {to: dest.lang}).then((response) => {
@@ -60,10 +69,17 @@ bot.on('text', (msg) => {
         if (msg.chat.id === GROUP_ID) {
             replyText = `${getSenderLink(msg)}:\n${replyText}`;
         }
-
         return bot.sendMessage(dest.chat, replyText, {
             parse: "markdown",
-            preview: false
+            replyToMessage: dest.reply,
+            preview: false,
+        }).then((msg2) => {
+            /* When user sends a message to the bot, the bot sends a message to channel. If someone replies to a channel
+               message, the bot must be able to reply to the user to the parallel message in the bot's chat with the user.
+               So too if user replies to message that he sent, we need to have the bot respond to chat that it sent in channel
+             */
+            client.hset([msg.chat.id, msg.message_id, msg2.message_id], redis.print);
+            client.hset([msg2.chat.id, msg2.message_id, msg.message_id], redis.print);
         })
     })
 });
