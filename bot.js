@@ -87,7 +87,7 @@ bot.on('text', async (msg) => {
     })
 });
 
-bot.on('forward', async (msg) => {
+bot.on('forward', async (msg) => { //todo different if forwarded text or other type of message
     let dest = await getResponseConfig(msg);
     bot.sendMessage(dest.chat, `${getSenderLink(msg)}:`, {parse: "markdown"}).then(() => {
         bot.forwardMessage(dest.chat, msg.chat.id, msg.message_id).then((msg2) => {
@@ -106,9 +106,12 @@ bot.on('forward', async (msg) => {
     }).catch((e) => logError(e, "name forward"));
 });
 
-bot.on('sticker', async (msg) => {
+bot.on(['audio', 'voice', 'document', 'photo', 'sticker', 'video', 'videoNote', 'contact', 'location', 'venue', 'game', 'invoice'], async (msg) => {
     let dest = await getResponseConfig(msg);
-    bot.forwardMessage(dest.chat, msg.chat.id, msg.message_id);
+    bot.forwardMessage(dest.chat, msg.chat.id, msg.message_id).then((msg2) => {
+        client.hset([msg.chat.id, msg.message_id, msg2.message_id]);
+        client.hset([msg2.chat.id, msg2.message_id, msg.message_id]);
+    }).catch((e) => logError(e, "forward"));
 });
 
 function logError(e, note){
