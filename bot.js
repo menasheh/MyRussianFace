@@ -9,11 +9,14 @@ const telebot = require('telebot'),
     } = process.env,
     USER_ID = Number(process.env.USER_ID),
     GROUP_ID = Number(process.env.GROUP_ID),
+    REDIS_ID = Number(process.env.REDIS_ID),
     LANG_NATIVE = 'en',
     LANG_FOREIGN = 'ru',
     bot = new telebot({
         token: TOKEN,
     });
+
+client.select(REDIS_ID, function() { /* ... */ });
 
 function getSenderLink(msg) {
     let name = msg.from.first_name + (msg.from.last_name ? (' ' + msg.from.last_name) : '');
@@ -52,7 +55,6 @@ async function getResponseConfig(msg) {
         reply: destReply
     }
 }
-
 
 bot.on('text', async (msg) => {
     let dest = await getResponseConfig(msg);
