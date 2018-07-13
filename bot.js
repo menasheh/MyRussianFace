@@ -39,14 +39,14 @@ async function getResponseConfig(msg) {
         //TODO - respond in user's own language
         if (msg.chat.id === msg.from.id) { // Don't respond to public chats
             let reply = "I'm a translation bot for @menasheh. Currently, the bot only supports one user. You can host"
-            + "your own copy if you'd like to use it. See " + "https://github.com/menasheh/myrussianface";
-            translate(reply, {to: msg.from.language_code.slice(0,2)}).then((response) => {
+                + "your own copy if you'd like to use it. See " + "https://github.com/menasheh/myrussianface";
+            translate(reply, {to: msg.from.language_code.slice(0, 2)}).then((response) => {
                 bot.sendMessage(msg.chat.id, response.text);
             }).catch((e) => {
+                console.log("translationFailure")
                 console.log(e);
                 bot.sendMessage(msg.chat.id, reply)
             });
-            }
         }
         return -1;
     }
@@ -88,8 +88,8 @@ bot.on('text', async (msg) => {
     })
 });
 
-bot.on('forward', (msg) => {
-    let dest = getResponseConfig(msg);
+bot.on('forward', async (msg) => {
+    let dest = await getResponseConfig(msg);
     bot.sendMessage(dest.chat, `${getSenderLink(msg)}:`, {parse: "markdown"}).then(() => {
         bot.forwardMessage(dest.chat, msg.chat.id, msg.message_id).then((msg2) => {
             client.hset([msg2.chat.id, msg2.message_id, msg.message_id]);
@@ -98,17 +98,23 @@ bot.on('forward', (msg) => {
                     bot.sendMessage(dest.chat, response.text).then((msg3 => {
                         client.hset([msg.chat.id, msg.message_id, msg3.message_id]);
                         client.hset([msg3.chat.id, msg3.message_id, msg.message_id]);
-                    })).catch((e) => console.log(e));
+                    })).catch((e) => {
+                        console.log("failed to forward message translation");
+                        console.log(e)
+                    });
                 } else {
                     client.hset([msg.chat.id, msg.message_id, msg2.message_id]);
                 }
             });
         });
-    }).catch((e) => console.log(e));
+    }).catch((e) => {
+        console.log("name forward failed");
+        console.log(e)
+    });
 });
 
-bot.on('sticker', (msg) => {
-    let dest = getResponseConfig(msg);
+bot.on('sticker', async (msg) => {
+    let dest = await getResponseConfig(msg);
     bot.forwardMessage(dest.chat, msg.chat.id, msg.message_id);
 });
 
