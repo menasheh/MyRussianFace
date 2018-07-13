@@ -32,11 +32,15 @@ git clone git@github.com:menasheh/myrussianface.git
 ```bash
 cd myrussianface
 npm install
+sudo apt-get install redis-server
 ```
+
+Redis server must be installed and running.
 
 ##### Set environment variables
  
 - `TELEBOT_TOKEN` - from [@botfather](https://t.me/botfather),
+- `REDIS_ID` the id of the redis database to use (0, 1, etc.).
 - `USER_ID` your telegram id,
 - `GROUP_ID` the id of a foreign-language user or group you'd like to communicate with.
  
