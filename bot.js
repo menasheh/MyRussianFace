@@ -61,7 +61,7 @@ bot.on('text', (msg) => {
             replyText = `${getSenderLink(msg)}:\n${replyText}`;
         }
 
-        return bot.sendMessage(destChat, replyText, {
+        return bot.sendMessage(dest.chat, replyText, {
             parse: "markdown",
             preview: false
         })
