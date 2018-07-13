@@ -78,8 +78,8 @@ bot.on('text', async (msg) => {
                message, the bot must be able to reply to the user to the parallel message in the bot's chat with the user.
                So too if user replies to message that he sent, we need to have the bot respond to chat that it sent in channel
              */
-            client.hset([msg.chat.id, msg.message_id, msg2.message_id], redis.print);
-            client.hset([msg2.chat.id, msg2.message_id, msg.message_id], redis.print);
+            client.hset([msg.chat.id, msg.message_id, msg2.message_id]);
+            client.hset([msg2.chat.id, msg2.message_id, msg.message_id]);
         })
     })
 });
@@ -87,10 +87,16 @@ bot.on('text', async (msg) => {
 bot.on('forward', (msg) => {
     let dest = getResponseConfig(msg);
     bot.sendMessage(dest.chat, `${getSenderLink(msg)}:`, {parse: "markdown"}).then(() => {
-        bot.forwardMessage(dest.chat, msg.chat.id, msg.message_id).then(() => {
+        bot.forwardMessage(dest.chat, msg.chat.id, msg.message_id).then((msg2) => {
+            client.hset([msg2.chat.id, msg2.message_id, msg.message_id]);
             translate(msg.text, {to: dest.lang}).then((response) => {
                 if (response.from.language.iso !== dest.lang) {
-                    bot.sendMessage(dest.chat, response.text);
+                    bot.sendMessage(dest.chat, response.text).then((msg3 => {
+                        client.hset([msg.chat.id, msg.message_id, msg3.message_id]);
+                        client.hset([msg3.chat.id, msg3.message_id, msg.message_id]);
+                    }));
+                } else {
+                    client.hset([msg.chat.id, msg.message_id, msg2.message_id]);
                 }
             });
         });
