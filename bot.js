@@ -14,11 +14,7 @@ const bot = new TeleBot({
     token: TOKEN,
 });
 
-bot.on('text', (msg) => {
-    let text = msg.text;
-    let chatId = msg.chat.id;
-    let messageId = msg.message_id;
-
+function getResponseConfig(msg) {
     let destChat;
     let destLang;
     if (msg.chat.id === USER_ID) {
@@ -32,21 +28,31 @@ bot.on('text', (msg) => {
         console.log(msg.chat.id);
         //TODO - respond in user's own language
         if (msg.chat.id === msg.from.id) { // Don't respond to public chats
-            return bot.sendMessage(chatId, "I'm a translation bot for @menasheh. He's planning to make one that more" +
+            bot.sendMessage(chatId, "I'm a translation bot for @menasheh. He's planning to make one that more" +
                 "people can use, but hasn't yet. In the meantime, you can host your own copy. See " +
                 "https://github.com/menasheh/myrussianface", {
                 preview: false
             });
         }
-        return
+        return -1;
     }
+    return {
+        chat: destChat,
+        lang: destLang
+    }
+}
 
-    return translate(text, {to: destLang}).then((response) => {
-        let translatedText = response.text;
-        let languageId = response.from.language.iso;
+bot.on('text', (msg) => {
+    let text = msg.text;
+    let chatId = msg.chat.id;
+    let messageId = msg.message_id;
+
+    let dest = getResponseConfig(msg);
+
+    return translate(text, {to: dest.lang}).then((response) => {
         let replyText = text;
-        if (languageId !== destLang) {
-            replyText = text + "\n---\n" + translatedText;
+        if (response.from.language.iso !== dest.lang) {
+            replyText = text + "\n---\n" + response.text;
         }
 
         if (msg.chat.id === GROUP_ID) {
@@ -59,8 +65,7 @@ bot.on('text', (msg) => {
             preview: false
         });
     });
-
-
+});
 
 });
 
