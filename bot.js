@@ -19,7 +19,6 @@ bot.on('text', (msg) => {
     let chatId = msg.chat.id;
     let messageId = msg.message_id;
 
-
     let destChat;
     let destLang;
     if (msg.chat.id === USER_ID) {
@@ -51,12 +50,12 @@ bot.on('text', (msg) => {
         }
 
         if (msg.chat.id === GROUP_ID){
-            replyText = `<b>${msg.from.first_name}${msg.from.last_name ? ' ' + msg.from.last_name :
-                ''}</b>(\@${msg.from.username})<b>:</b>\n${replyText}`
+            let name = msg.from.first_name + (msg.from.last_name ? (' ' + msg.from.last_name) : '');
+            replyText = `[${name}](tg://user?id=${msg.from.id}):\n${replyText}`;
         }
 
         return bot.sendMessage(destChat, replyText, {
-            parse: "html",
+            parse: "markdown",
             preview: false
         });
     });
