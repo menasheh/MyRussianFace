@@ -63,6 +63,17 @@ bot.on('text', (msg) => {
         return bot.sendMessage(destChat, replyText, {
             parse: "markdown",
             preview: false
+        })
+    })
+});
+
+bot.on('forward', (msg) => {
+    let dest = getResponseConfig(msg);
+    bot.forwardMessage(dest.chat, msg.chat.id, msg.message_id).then(() => {
+        translate(msg.text, {to: dest.lang}).then((response) => {
+            if (response.from.language.iso !== dest.lang) {
+                bot.sendMessage(dest.chat, response.text);
+            }
         });
     });
 });
