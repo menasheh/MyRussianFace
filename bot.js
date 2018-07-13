@@ -13,6 +13,11 @@ const bot = new TeleBot({
     token: TOKEN,
 });
 
+function getSenderLink(msg) {
+    let name = msg.from.first_name + (msg.from.last_name ? (' ' + msg.from.last_name) : '');
+    return `[${name}](tg://user?id=${msg.from.id})`;
+}
+
 function getResponseConfig(msg) {
     let destChat;
     let destLang;
@@ -25,7 +30,7 @@ function getResponseConfig(msg) {
     } else {
         console.log("Unknown party has accessed the bot!.");
         console.log(msg.chat.id);
-        //TODO - respond in user's own language
+        //TODO - respond in user's own language msg.from.language_code (but not in right format)
         if (msg.chat.id === msg.from.id) { // Don't respond to public chats
             bot.sendMessage(chatId, "I'm a translation bot for @menasheh. He's planning to make one that more" +
                 "people can use, but hasn't yet. In the meantime, you can host your own copy. See " +
@@ -53,8 +58,7 @@ bot.on('text', (msg) => {
         }
 
         if (msg.chat.id === GROUP_ID) {
-            let name = msg.from.first_name + (msg.from.last_name ? (' ' + msg.from.last_name) : '');
-            replyText = `[${name}](tg://user?id=${msg.from.id}):\n${replyText}`;
+            replyText = `${getSenderLink(msg)}:\n${replyText}`;
         }
 
         return bot.sendMessage(destChat, replyText, {
@@ -66,11 +70,13 @@ bot.on('text', (msg) => {
 
 bot.on('forward', (msg) => {
     let dest = getResponseConfig(msg);
-    bot.forwardMessage(dest.chat, msg.chat.id, msg.message_id).then(() => {
-        translate(msg.text, {to: dest.lang}).then((response) => {
-            if (response.from.language.iso !== dest.lang) {
-                bot.sendMessage(dest.chat, response.text);
-            }
+    bot.sendMessage(dest.chat, `${getSenderLink(msg)}:`, {parse: "markdown"}).then(() => {
+        bot.forwardMessage(dest.chat, msg.chat.id, msg.message_id).then(() => {
+            translate(msg.text, {to: dest.lang}).then((response) => {
+                if (response.from.language.iso !== dest.lang) {
+                    bot.sendMessage(dest.chat, response.text);
+                }
+            });
         });
     });
 });
