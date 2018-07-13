@@ -1,6 +1,5 @@
 const TeleBot = require('telebot');
 const translate = require('google-translate-api');
-
 const {
     TELEBOT_TOKEN: TOKEN,
 } = process.env;
@@ -78,6 +77,9 @@ bot.on('forward', (msg) => {
     });
 });
 
+bot.on('sticker', (msg) => {
+    let dest = getResponseConfig(msg);
+    bot.forwardMessage(dest.chat, msg.chat.id, msg.message_id);
 });
 
 bot.start();
