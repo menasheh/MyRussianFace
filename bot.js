@@ -18,6 +18,15 @@ const telebot = require('telebot'),
 
 client.select(REDIS_ID, function() { /* ... */ });
 
+function associate(msg, msg2){
+    client.hset([msg.chat.id, msg.message_id, msg2.message_id]);
+}
+
+function doubleAssociate(msg, msg2) {
+    associate(msg, msg2);
+    associate(msg2, msg);
+}
+
 function getSenderLink(msg) {
     let name = msg.from.first_name + (msg.from.last_name ? (' ' + msg.from.last_name) : '');
     return `[${name}](tg://user?id=${msg.from.id})`;
@@ -81,8 +90,7 @@ bot.on('text', async (msg) => {
                message, the bot must be able to reply to the user to the parallel message in the bot's chat with the user.
                So too if user replies to message that he sent, we need to have the bot respond to chat that it sent in channel
              */
-            client.hset([msg.chat.id, msg.message_id, msg2.message_id]);
-            client.hset([msg2.chat.id, msg2.message_id, msg.message_id]);
+            doubleAssociate(msg, msg2);
         })
     })
 });
@@ -91,15 +99,14 @@ bot.on('forward', async (msg) => { //todo different if forwarded text or other t
     let dest = await getResponseConfig(msg);
     bot.sendMessage(dest.chat, `${getSenderLink(msg)}:`, {parse: "markdown"}).then(() => {
         bot.forwardMessage(dest.chat, msg.chat.id, msg.message_id).then((msg2) => {
-            client.hset([msg2.chat.id, msg2.message_id, msg.message_id]);
+            associate(msg2, msg);
             translate(msg.text, {to: dest.lang}).then((response) => {
                 if (response.from.language.iso !== dest.lang) {
                     bot.sendMessage(dest.chat, response.text).then((msg3 => {
-                        client.hset([msg.chat.id, msg.message_id, msg3.message_id]);
-                        client.hset([msg3.chat.id, msg3.message_id, msg.message_id]);
+                        doubleAssociate(msg, msg3);
                     })).catch((e) => logError(e, "sending fowarded message translation"));
                 } else {
-                    client.hset([msg.chat.id, msg.message_id, msg2.message_id]);
+                    associate(msg, msg2);
                 }
             });
         });
@@ -109,8 +116,7 @@ bot.on('forward', async (msg) => { //todo different if forwarded text or other t
 bot.on(['audio', 'voice', 'document', 'photo', 'sticker', 'video', 'videoNote', 'contact', 'location', 'venue', 'game', 'invoice'], async (msg) => {
     let dest = await getResponseConfig(msg);
     bot.forwardMessage(dest.chat, msg.chat.id, msg.message_id).then((msg2) => {
-        client.hset([msg.chat.id, msg.message_id, msg2.message_id]);
-        client.hset([msg2.chat.id, msg2.message_id, msg.message_id]);
+        doubleAssociate(msg, msg2);
     }).catch((e) => logError(e, "forward"));
 });
 
