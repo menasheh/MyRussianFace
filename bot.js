@@ -16,9 +16,10 @@ const telebot = require('telebot'),
         token: TOKEN,
     });
 
-client.select(REDIS_ID, function() { /* ... */ });
+client.select(REDIS_ID, function () { /* ... */
+});
 
-function associate(msg, msg2){
+function associate(msg, msg2) {
     client.hset([msg.chat.id, msg.message_id, msg2.message_id]);
 }
 
@@ -69,31 +70,34 @@ async function getResponseConfig(msg) {
 }
 
 bot.on('text', async (msg) => {
-    let dest = await getResponseConfig(msg);
     let text = msg.text;
+    if (!text.match(/^\//)) {
+        let dest = await getResponseConfig(msg);
 
-    return translate(text, {to: dest.lang}).then((response) => {
-        let replyText = text;
-        if (response.from.language.iso !== dest.lang) {
-            replyText = response.text + "\n---\n" + text;
-        }
+        return translate(text, {to: dest.lang}).then((response) => {
+            let replyText = text;
+            if (response.from.language.iso !== dest.lang) {
+                replyText = response.text + "\n---\n" + text;
+            }
 
-        if (msg.chat.id === GROUP_ID) {
-            replyText = `${getSenderLink(msg)}:\n${replyText}`;
-        }
-        return bot.sendMessage(dest.chat, replyText, {
-            parse: "markdown",
-            replyToMessage: dest.reply,
-            preview: false,
-        }).then((msg2) => {
-            /* When user sends a message to the bot, the bot sends a message to channel. If someone replies to a channel
-               message, the bot must be able to reply to the user to the parallel message in the bot's chat with the user.
-               So too if user replies to message that he sent, we need to have the bot respond to chat that it sent in channel
-             */
-            doubleAssociate(msg, msg2);
+            if (msg.chat.id === GROUP_ID) {
+                replyText = `${getSenderLink(msg)}:\n${replyText}`;
+            }
+            return bot.sendMessage(dest.chat, replyText, {
+                parse: "markdown",
+                replyToMessage: dest.reply,
+                preview: false,
+            }).then((msg2) => {
+                /* When user sends a message to the bot, the bot sends a message to channel. If someone replies to a channel
+                   message, the bot must be able to reply to the user to the parallel message in the bot's chat with the user.
+                   So too if user replies to message that he sent, we need to have the bot respond to chat that it sent in channel
+                 */
+                doubleAssociate(msg, msg2);
+            })
         })
-    })
-});
+    }
+})
+;
 
 bot.on('forward', async (msg) => { //todo different if forwarded text or other type of message
     let dest = await getResponseConfig(msg);
@@ -120,7 +124,7 @@ bot.on(['audio', 'voice', 'document', 'photo', 'sticker', 'video', 'videoNote', 
     }).catch((e) => logError(e, "forward"));
 });
 
-function logError(e, note){
+function logError(e, note) {
     console.log(`${note} failed:`);
     console.log(e)
 }
