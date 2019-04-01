@@ -23,7 +23,7 @@ function associate(msg, msg2) {
     client.hset([msg.chat.id, msg.message_id, msg2.message_id]);
 }
 
-function doubleAssociate(msg, msg2) {
+function associateBidirectional(msg, msg2) {
     associate(msg, msg2);
     associate(msg2, msg);
 }
@@ -92,12 +92,11 @@ bot.on('text', async (msg) => {
                    message, the bot must be able to reply to the user to the parallel message in the bot's chat with the user.
                    So too if user replies to message that he sent, we need to have the bot respond to chat that it sent in channel
                  */
-                doubleAssociate(msg, msg2);
+                associateBidirectional(msg, msg2);
             })
         })
     }
-})
-;
+});
 
 bot.on('forward', async (msg) => { //todo different if forwarded text or other type of message
     let dest = await getResponseConfig(msg);
@@ -107,7 +106,7 @@ bot.on('forward', async (msg) => { //todo different if forwarded text or other t
             translate(msg.text, {to: dest.lang}).then((response) => {
                 if (response.from.language.iso !== dest.lang) {
                     bot.sendMessage(dest.chat, response.text).then((msg3 => {
-                        doubleAssociate(msg, msg3);
+                        associateBidirectional(msg, msg3);
                     })).catch((e) => logError(e, "sending fowarded message translation"));
                 } else {
                     associate(msg, msg2);
@@ -120,7 +119,7 @@ bot.on('forward', async (msg) => { //todo different if forwarded text or other t
 bot.on(['audio', 'voice', 'document', 'photo', 'sticker', 'video', 'videoNote', 'contact', 'location', 'venue', 'game', 'invoice'], async (msg) => {
     let dest = await getResponseConfig(msg);
     bot.forwardMessage(dest.chat, msg.chat.id, msg.message_id).then((msg2) => {
-        doubleAssociate(msg, msg2);
+        associateBidirectional(msg, msg2);
     }).catch((e) => logError(e, "forward"));
 });
 
