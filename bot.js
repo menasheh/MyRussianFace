@@ -4,6 +4,8 @@ const
     translate = require('google-translate-api'),
 
     // database stuff
+    {Pool} = require('pg'),
+    pg = new Pool(),
     redis = require("redis").createClient(),
     {promisify} = require('util'),
     hget = promisify(redis.hget).bind(redis),

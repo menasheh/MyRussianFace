@@ -5,7 +5,8 @@
     "start": "node bot.js"
   },
   "dependencies": {
-    "google-translate-api": "teamsteamdev/google-translate-api",
+    "google-translate-api": "github:teamsteamdev/google-translate-api",
+    "pg": "^7.9.0",
     "redis": "^2.8.0",
     "telebot": "^1.1.1"
   }
