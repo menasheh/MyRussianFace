@@ -1,20 +1,21 @@
-const telebot = require('telebot'),
+const
+    telebot = require('telebot'),
+    bot = new telebot({ token: process.env.BOT_TOKEN }),
     translate = require('google-translate-api'),
+
+    // database stuff
     redis = require("redis"),
     client = redis.createClient(),
     {promisify} = require('util'),
     hget = promisify(client.hget).bind(client),
-    {
-        TELEBOT_TOKEN: TOKEN,
-    } = process.env,
+
+    // config which we'll move to database
     USER_ID = Number(process.env.USER_ID),
     GROUP_ID = Number(process.env.GROUP_ID),
     REDIS_ID = Number(process.env.REDIS_ID),
     LANG_NATIVE = 'en',
-    LANG_FOREIGN = 'ru',
-    bot = new telebot({
-        token: TOKEN,
-    });
+    LANG_FOREIGN = 'ru'
+;
 
 client.select(REDIS_ID, function () { /* ... */
 });
