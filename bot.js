@@ -1,13 +1,12 @@
 const
     telebot = require('telebot'),
-    bot = new telebot({ token: process.env.BOT_TOKEN }),
+    bot = new telebot({token: process.env.BOT_TOKEN}),
     translate = require('google-translate-api'),
 
     // database stuff
-    redis = require("redis"),
-    client = redis.createClient(),
+    redis = require("redis").createClient(),
     {promisify} = require('util'),
-    hget = promisify(client.hget).bind(client),
+    hget = promisify(redis.hget).bind(redis),
 
     // config which we'll move to database
     USER_ID = Number(process.env.USER_ID),
@@ -17,11 +16,11 @@ const
     LANG_FOREIGN = 'ru'
 ;
 
-client.select(REDIS_ID, function () { /* ... */
+redis.select(REDIS_ID, function () { /* ... */
 });
 
 function associate(msg, msg2) {
-    client.hset([msg.chat.id, msg.message_id, msg2.message_id]);
+    redis.hset([msg.chat.id, msg.message_id, msg2.message_id]);
 }
 
 function associateBidirectional(msg, msg2) {
